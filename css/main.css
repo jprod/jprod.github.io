@@ -311,28 +311,49 @@ a {
     font-family: 'somaticrounded', sans-serif;
 }
 
+.page-header {
+    background-color:#fff; 
+    padding:10px 10px;
+    color: #545454;
+}
+
 .page-text {
-    
+    background-color: #3c3c44;
+    padding:10px 10px;
+    text-align: justify;
 }
 
 .experience-section {
     width: calc(20vh + 5vw + 250px);
 }
 
-.page1 {
+.page {
     position: absolute;
+
 }
 
-.page2 {
+.page#two {
     position: absolute;
     left: 50px;
     top: 100px;
 }
 
-.page3 {
+.page#three {
     position: absolute;
-    left: 1000px;
+    left: 700px;
     top: 100px;
+}
+
+.page#four {
+    position: absolute;
+    left: 1200px;
+    top: 100px;
+}
+
+.simon-image {
+    background-color: #fff;
+    padding:10px 10px;
+    width: 25vw;
 }
 
 /* ==========================================================================
