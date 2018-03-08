@@ -35,7 +35,7 @@ $(function() {
         }
     });
 
-  $('.menu-button').click(function() {
+  $('.menu-button').on('click touch', function() {
     var loc = $(this).css("--scroll-location");
     window.scroll({
       top: loc, 

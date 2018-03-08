@@ -12,5 +12,7 @@
     <orderEntry type="library" name="jquery-3.2.1" level="application" />
     <orderEntry type="library" name="skrollr" level="application" />
     <orderEntry type="library" name="smoothscroll" level="application" />
+    <orderEntry type="library" name="featherlight" level="application" />
+    <orderEntry type="library" name="jquery-latest" level="application" />
   </component>
 </module>
