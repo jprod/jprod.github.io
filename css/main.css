@@ -157,7 +157,7 @@
      z-index: 100;
      top: 0;
      position: absolute;
-     left: calc(100vw - 0px);
+     /*! left: calc(100vw - 0px); */
  }
 
  .wipe3 {
@@ -166,7 +166,7 @@
      z-index: 100;
      top: 0;
      position: absolute;
-     left: calc(100vw - 0px);
+     /*! left: calc(100vw - 0px); */
  }
 
  .content {
@@ -215,7 +215,7 @@
  }
 
  .design-svg {
-     --scroll-location: 7000;
+     --scroll-location: 6500;
  }
 
  .contact-svg {
@@ -276,13 +276,13 @@
  .slide-container {
      position: absolute;
      top: 0;
-     /*! left: 0%; */
+     left: 20vw;
  }
 
  .slide1 {
      position: relative;
      top: 25vh;
-     left: 100vw;
+     /*! left: 50vw; */
      z-index: 100;
  }
 
@@ -316,7 +316,7 @@
  .slide2 {
      position: relative;
      top: 10vh;
-     left: 100vw;
+     /*! left: 100vw; */
      z-index: 100;
  }
 
@@ -421,7 +421,7 @@
  .slide3 {
      position: relative;
      top: 10vh;
-     left: 100vw;
+     /*! left: 100vw; */
      z-index: 100;
  }
 
@@ -489,7 +489,7 @@
  .slide4 {
      position: relative;
      top: 10vh;
-     left: 100vw;
+     left: calc(80vw - 81vh);
      z-index: 100;
  }
 
