@@ -20,6 +20,8 @@ var gridlines = true;
 var gridlineweight = 0.5;
 var gridlineweightMax = 1.5;
 var gridlineweightStep = 0.01;
+var buffvec = [0.5, 0.866];
+var buffcoeff = 0.05;
 var trimatrix;
 var buttonbot;
 var dither = false;
@@ -94,6 +96,16 @@ function drawDiagGrid(s, h, y0) {
   let x0 = cam[0]+center[0] - s*triwidth/2
   let rightbound = x0+triwidth*s+s/2;
   strokeWeight(gridlineweight);
+  stroke('#fae');
+  // Base Lines
+  let y = y0;
+  for (let i = 0; i < triheight; i++) {
+    let x = cam[0]+center[0] - s*triwidth/2 + parrow(i%4)*s/2;
+    if (gridlines) {
+      line(x, y, x+s*triwidth, y);
+    }
+    y += h*((i+1)%2);
+  }
   // Right Diagonals (going down to the right)
   for (let i = 0; i < numrd; i++) {
     let topstart = x0 + i*s - ceil(kr-1)*s
@@ -112,7 +124,6 @@ function drawDiagGrid(s, h, y0) {
       x2 = rightbound-s/2;
       y2 = y0 + h*ceil(triheight/2)-h;
     }
-    stroke('#fae');
     line(x1, y1, x2, y2);
   }
   // Left Diagonals (going down to the left)
@@ -133,7 +144,6 @@ function drawDiagGrid(s, h, y0) {
       x2 = x0+s/2;
       y2 = y0 + h*ceil(triheight/2)-h;
     }
-    stroke('#fae');
     line(x1, y1, x2, y2);
   }
 }
@@ -142,15 +152,8 @@ function drawTriGrid() {
   s = SIDELEN * ((cam[2]/720)+1)
   h = SQRT3*s/2
   y =  cam[1]+center[1] - h*triheight/4
-  if (gridlines)
-    drawDiagGrid(s,h,y);
   for (let i = 0; i < triheight; i++) {
     x = cam[0]+center[0] - s*triwidth/2 + parrow(i%4)*s/2;
-    if (gridlines) {
-      stroke('#fae');
-      strokeWeight(gridlineweight);
-      line(x, y, x+s*triwidth, y);
-    }
     tripar = (i+1)%2 * 2 - 1;
     for (let j = 0; j < triwidth; j++) {
       drawTriangles(x, y, s, trimatrix[i][j], tripar);
@@ -158,6 +161,8 @@ function drawTriGrid() {
     }
     y += h*((i+1)%2);
   }
+  if (gridlines)
+    drawDiagGrid(s,h,cam[1]+center[1] - h*triheight/4);
 }
 
 function parrow(num) {
@@ -167,9 +172,11 @@ function parrow(num) {
 }
 
 function drawTriangles(x, y, s, c, par) {
+  let sqrts = sqrt(s)
   fill(c);
   noStroke();
-  triangle(x, y, x+s, y, x+s/2, y+par*SQRT3*s/2);
+  triangle(x - buffvec[0]*buffcoeff*sqrts, y - buffvec[1]*buffcoeff*par*sqrts, 
+    x + s + buffvec[0]*buffcoeff*sqrts, y - buffvec[1]*buffcoeff*par*sqrts, x + s/2, y + par*SQRT3*s/2 + par*buffcoeff*sqrts);
 }
 
 function mouseWheel(event) {
@@ -183,8 +190,7 @@ function mousePressed(event) {
     seekGrid(event.clientX, event.clientY, c);
   }
   if (mouseButton === RIGHT) {
-    c.setAlpha(0);
-    seekGrid(event.clientX, event.clientY, c);
+    seekGrid(event.clientX, event.clientY, bgactual);
   }
 }
 
@@ -195,8 +201,7 @@ function mouseDragged(event) {
     seekGrid(event.clientX, event.clientY, c);
   }
   if (mouseButton === RIGHT) {
-    c.setAlpha(0);
-    seekGrid(event.clientX, event.clientY, c);
+    seekGrid(event.clientX, event.clientY, bgactual);
   }
   if (mouseButton === CENTER) {
     cam[0] += event.movementX;
