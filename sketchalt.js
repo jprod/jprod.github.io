@@ -72,6 +72,7 @@ function setup() {
 function draw() {
   background(87, 89, 87);
   drawCheckerboard();
+  cursor(CROSS);
   drawTriGrid();
 }
 
@@ -172,11 +173,11 @@ function parrow(num) {
 }
 
 function drawTriangles(x, y, s, c, par) {
-  let sqrts = sqrt(s)
+  let coeff2 = 5;
   fill(c);
   noStroke();
-  triangle(x - buffvec[0]*buffcoeff*sqrts, y - buffvec[1]*buffcoeff*par*sqrts, 
-    x + s + buffvec[0]*buffcoeff*sqrts, y - buffvec[1]*buffcoeff*par*sqrts, x + s/2, y + par*SQRT3*s/2 + par*buffcoeff*sqrts);
+  triangle(x - buffvec[0]*buffcoeff*coeff2, y - buffvec[1]*buffcoeff*par*coeff2, 
+    x + s + buffvec[0]*buffcoeff*coeff2, y - buffvec[1]*buffcoeff*par*coeff2, x + s/2, y + par*SQRT3*s/2 + par*buffcoeff*coeff2);
 }
 
 function mouseWheel(event) {
