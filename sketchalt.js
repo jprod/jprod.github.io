@@ -72,7 +72,15 @@ function setup() {
 function draw() {
   background(87, 89, 87);
   drawCheckerboard();
-  cursor(CROSS);
+  if (mouseIsPressed) {
+    if (mouseButton === CENTER) {
+      cursor('grab');
+    } else {
+      cursor(CROSS);
+    }
+  } else {
+    cursor(CROSS);
+  }
   drawTriGrid();
 }
 
@@ -193,6 +201,9 @@ function mousePressed(event) {
   if (mouseButton === RIGHT) {
     seekGrid(event.clientX, event.clientY, bgactual);
   }
+  if (mouseButton === CENTER) {
+    cursor('grab');
+  }
 }
 
 function mouseDragged(event) {
@@ -205,6 +216,7 @@ function mouseDragged(event) {
     seekGrid(event.clientX, event.clientY, bgactual);
   }
   if (mouseButton === CENTER) {
+    cursor('grab');
     cam[0] += event.movementX;
     cam[1] += event.movementY;
   }
