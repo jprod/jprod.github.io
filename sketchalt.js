@@ -26,16 +26,23 @@ var trimatrix;
 var buttonbot;
 var dither = false;
 var webcolors = false;
+var skipbuffer = [-1,-1];
+var parVec = [[1,-1], [-1,1], [1,1], [-1,-1]];
+var actualNext = [[[0.5, 0.866], [-1, 0], [0.5, -0.866]],
+                  [[1, 0], [-0.5, -0.866], [-0.5, 0.866]],
+                  [[0.5, -0.866], [-1, 0], [0.5, 0.866]],
+                  [[1, 0], [-0.5, 0.866], [-0.5, -0.866]]]
 var gui;
 var webcol;
 
+// let nextList = [[1,0], [-1,0], parVec[par]];
 
 
 function setup() {
   for (let element of document.getElementsByClassName("p5Canvas")) {
     element.addEventListener("contextmenu", (e) => e.preventDefault());
   }
-  frameRate(40);
+  frameRate(60);
   gui = createGui('GUI');
   sliderRange(0, 1000, 1);
   gui.addGlobals("triwidth_px", "triheight_px", "pencolor", "penalpha", 
@@ -192,6 +199,15 @@ function mouseWheel(event) {
   cam[2] -= event.delta;
 }
 
+function mouseReleased(event) {
+  if (mouseButton === LEFT) {
+    skipbuffer = [-1,-1];
+  }
+  if (mouseButton === RIGHT) {
+    skipbuffer = [-1,-1];
+  }
+}
+
 function mousePressed(event) {
   let c = color(pencolor);
   c.setAlpha(penalpha);
@@ -223,6 +239,56 @@ function mouseDragged(event) {
   // prevent default
 }
 
+function closeNextVec(vec, par) {
+  let nextList = [[1,0], [-1,0], parVec[par]];
+  let realNext = actualNext[par];
+  let len = vecLen([realNext[0][0]-vec[0], realNext[0][1]-vec[1]]);
+  let best = nextList[0];
+  for (let i = 1; i < 3; i++) {
+    let ilen = vecLen([realNext[i][0]-vec[0], realNext[i][1]-vec[1]]);
+    if (ilen < len) {
+      len = ilen;
+      best = nextList[i];
+    }
+  }
+  return best;
+}
+
+function setLine(y1, x1, y2, x2, c) {
+  let fudge = 0.3;
+  let vec = [y2-y1,x2-x1];
+  let normvec = normalize(vec);
+  let length = sqrt(vec[0]*vec[0]+vec[1]*vec[1]);
+  let hdir = vec.map(d => d / length);
+  let cursor = [y1, x1];
+  let i = 0
+  while (round(cursor[0]) != y2 || round(cursor[1]) != x2) {
+    let next = closeNextVec([y2-cursor[0], x2-cursor[1]], round(cursor[0])%4);
+    let nexttri = [round(cursor[0]) + next[0], round(cursor[1]) + next[1]];
+    trimatrix[nexttri[0]][nexttri[1]] = c;
+    let vp = vecPerp([y1 - nexttri[0], x1 - nexttri[1]], normvec);
+    let ncnorm = !(vp[0] == 0 && vp[1] ==0) ? normalize(vp) : [0,0];
+    cursor = [nexttri[0] + ncnorm[0] * fudge, nexttri[1] + ncnorm[1] * fudge];
+    i++;
+    if (i > 50)
+      break;
+  }
+  trimatrix[y2][x2] = c;
+}
+
+function seekTri(mx, my, x, y, s, par, i, j, c) {
+  vec0 = normalize([mx-x, my-y]);
+  vec1 = normalize([mx-(x+s), my-y]);
+  if (vec0[0] > 0.55 && vec1[0] < -0.55 && ((par == 1 && vec0[1] > 0.0) || (par == -1 && vec0[1] < 0.0))) {
+    if (skipbuffer[0] != -1 && (skipbuffer[0] != i || skipbuffer[1] != j) && !triAdjacent(skipbuffer, [i,j])) {
+      setLine(skipbuffer[0], skipbuffer[1], i, j, c);
+    } else if (skipbuffer[0] != i || skipbuffer[1] != j) {
+      trimatrix[i][j] = c;
+    }
+    skipbuffer = [i,j];
+  }
+}
+
 function seekGrid(mx, my, c) {
   s = SIDELEN * ((cam[2]/720)+1)
   h = SQRT3*s/2
@@ -238,16 +304,38 @@ function seekGrid(mx, my, c) {
   }
 }
 
-function seekTri(mx, my, x, y, s, par, i, j, c) {
-  vec0 = normalize([mx-x, my-y]);
-  vec1 = normalize([mx-(x+s), my-y]);
-  if (vec0[0] > 0.55 && vec1[0] < -0.55 && ((par == 1 && vec0[1] > 0.0) || (par == -1 && vec0[1] < 0.0))) {
-    trimatrix[i][j] = c;
+function triAdjacent(t1, t2) {
+  let nextList = [[1,0], [-1,0], parVec[t1[0]%4]];
+  for (let i = 0; i < 3; i++) {
+    if (nextList[i][0]+t1[0] == t2[0] && nextList[i][1]+t1[1] == t2[1]) {
+      return true;
+    }
   }
+  return false;
+}
+
+function vecPerp(vec, unitvec) {
+  return vecAdd(vec, vecScal(unitvec, -1*vecDot(vec, unitvec)));
+}
+
+function vecAdd(vec1, vec2) {
+  return [vec1[0]+vec2[0], vec1[1]+vec2[1]];
+}
+
+function vecScal(vec, scaler) {
+  return [vec[0]*scaler, vec[1]*scaler];
+}
+
+function vecDot(vec1, vec2) {
+  return (vec1[0]*vec2[0] + vec1[1]*vec2[1])
+}
+
+function vecLen(vec) {
+  return sqrt(vec[0]*vec[0]+vec[1]*vec[1]);
 }
 
 function normalize(vec) {
-  let length = sqrt(vec[0]*vec[0]+vec[1]*vec[1]);
+  let length = vecLen(vec);
   return vec.map(d => d / length)
 }
 
